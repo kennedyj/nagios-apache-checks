@@ -9,7 +9,6 @@ GREP=$(which grep)
 AWK=$(which awk)
 SORT=$(which sort)
 UNIQ=$(which uniq)
-SUDO=$(which sudo)
 OPENSSL=$(which openssl)
 DATE=$(which date)
 PYTHON=$(which python)
@@ -84,11 +83,11 @@ if [ -z "$critical" ]; then
   critical=15
 fi
 
-CERTS=$($SUDO $GREP -rh SSLCertificateFile $path/* | $GREP -v '^\s*#\|snakeoil' | $AWK '{print $2}' | $SORT | $UNIQ)
+CERTS=$($GREP -rh SSLCertificateFile $path/* | $GREP -v '^\s*#\|snakeoil' | $AWK '{print $2}' | $SORT | $UNIQ)
 for cert in $CERTS;
 do
-  EXPIRES=$($SUDO $OPENSSL x509 -enddate -noout -in $cert | $CUT -d"=" -f 2)
-  SUBJECT=$($SUDO $OPENSSL x509 -subject -noout -in $cert | $SED 's~.*/CN=\(.*\)~\1~')
+  EXPIRES=$($OPENSSL x509 -enddate -noout -in $cert | $CUT -d"=" -f 2)
+  SUBJECT=$($OPENSSL x509 -subject -noout -in $cert | $SED 's~.*/CN=\(.*\)~\1~')
 
   THEN=$($DATE --date="$EXPIRES" "+%s")
   NOW=$($DATE "+%s")
@@ -97,17 +96,20 @@ do
 
   HUMAN=$($PYTHON -c "from datetime import datetime; print datetime.utcfromtimestamp(float($THEN)) - datetime.utcfromtimestamp(float($NOW))")
 
+  currentstate="OK"
   if [ "$DAYS" -le "$warning" ] && [ "$exitstatus" -lt "$STATE_WARNING" ];
   then
+    currentstate="WARNING"
     exitstatus=$STATE_WARNING
   fi
 
   if [ "$DAYS" -le "$critical" ] && [ "$exitstatus" -lt "$STATE_CRITICAL" ];
   then
+    currentstate="CRITICAL"
     exitstatus=$STATE_WARNING
   fi
 
-  echo "$SUBJECT expires in $HUMAN"
+  echo "$currentstate - $SUBJECT expires in $HUMAN"
 done
 
 exit $exitstatus
