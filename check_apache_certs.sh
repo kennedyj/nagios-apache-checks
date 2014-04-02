@@ -90,6 +90,13 @@ then
 fi
 
 CERTS=$($GREP -rh SSLCertificateFile $path/* | $GREP -v '^\s*#\|snakeoil' | $AWK '{print $2}' | $SORT | $UNIQ)
+
+if [ -z "$CERTS" ];
+then
+  echo "OK - no certificates"
+  exit $STATE_OK
+fi
+
 for cert in $CERTS;
 do
   EXPIRES=$($OPENSSL x509 -enddate -noout -in $cert | $CUT -d"=" -f 2)
