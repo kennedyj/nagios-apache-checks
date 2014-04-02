@@ -83,6 +83,12 @@ if [ -z "$critical" ]; then
   critical=15
 fi
 
+if [ ! -e "$path" ];
+then
+  echo "OK - no certificates"
+  exit $STATE_OK
+fi
+
 CERTS=$($GREP -rh SSLCertificateFile $path/* | $GREP -v '^\s*#\|snakeoil' | $AWK '{print $2}' | $SORT | $UNIQ)
 for cert in $CERTS;
 do
