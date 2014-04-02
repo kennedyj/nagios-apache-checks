@@ -6,7 +6,7 @@ SUDO=$(which sudo)
 CHMOD=$(which chmod)
 TEE=$(which tee)
 
-CHECK_URL="https://gist.githubusercontent.com/kennedyj/9940351/raw/1a650bb85fb5da15a81ae7b36b02f9ccb5abf481/check_apache_certs.sh"
+CHECK_URL="https://raw.githubusercontent.com/kennedyj/nagios-check-apache-certs/master/check_apache_certs.sh"
 
 NAGIOS_HOME="/usr/local/nagios"
 CHECK_FILE="check_apache_certs"
